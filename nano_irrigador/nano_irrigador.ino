@@ -6,6 +6,11 @@
 #define PINO_LUZ_VERMELHA 6
 #define PINO_REGADOR 8
 
+void ligaValvulaIrrigacao();
+void desligaValvulaIrrigacao();
+void atualizaStatusLuzes(uint16_t estadoLuzes);
+void efetuaIrrigacao(int32_t segundos);
+
 void setup() {
   pinMode(PINO_BOTAO_LIGA, INPUT_PULLUP); //mantem ligado ao vcc pelo pull up
   pinMode(PINO_LUZ_AZUL, OUTPUT);
@@ -14,6 +19,27 @@ void setup() {
 
   digitalWrite(PINO_LUZ_AZUL, LOW);
   digitalWrite(PINO_LUZ_VERMELHA, LOW);
+  digitalWrite(PINO_REGADOR, LOW);
+}
+
+void loop() {
+  //TODO: deep sleep para economizar bateria  
+  delay(1000);
+
+  if (digitalRead(PINO_BOTAO_LIGA) == LOW)
+  {
+    int32_t segundos_irrigacao = 60 * TEMPO_LIGADO_MINUTOS;
+    efetuaIrrigacao(segundos_irrigacao);
+  }
+}
+
+void ligaValvulaIrrigacao()
+{
+  digitalWrite(PINO_REGADOR, HIGH);
+}
+
+void desligaValvulaIrrigacao()
+{
   digitalWrite(PINO_REGADOR, LOW);
 }
 
@@ -52,7 +78,7 @@ void efetuaIrrigacao(int32_t segundos)
     //assim o fluxo de agua alterna entre perto e longe
     for (int i = 0; i < 10; i++)
     {
-      digitalWrite(PINO_REGADOR, HIGH);
+      ligaValvulaIrrigacao();
       atualizaStatusLuzes(0);
       delay(500);
       atualizaStatusLuzes(1);
@@ -63,7 +89,7 @@ void efetuaIrrigacao(int32_t segundos)
 
     for (int i = 0; i < 10; i++)
     {
-      digitalWrite(PINO_REGADOR, LOW);
+      desligaValvulaIrrigacao();
       atualizaStatusLuzes(0);
       delay(500);
       atualizaStatusLuzes(1);
@@ -73,18 +99,7 @@ void efetuaIrrigacao(int32_t segundos)
     }
   }
 
-  //termina desligado
-  digitalWrite(PINO_REGADOR, LOW);
+  //termina desligado as luzes
   atualizaStatusLuzes(-1);
 
-}
-
-void loop() {
-  //TODO: deep sleep para economizar bateria  
-  delay(1000);
-
-  if (digitalRead(PINO_BOTAO_LIGA) == LOW)
-  {
-    efetuaIrrigacao(60 * TEMPO_LIGADO_MINUTOS);
-  }
 }
