@@ -5,8 +5,6 @@
 #define PINO_LUZ_AZUL 4
 #define PINO_LUZ_VERMELHA 6
 #define PINO_REGADOR 8
-#define PINO_CARREGADOR 9 //pino que liga o carregador em LOW, e desliga em HIGH
-
 
 volatile bool ligarRegador = false;
 
@@ -57,7 +55,6 @@ void setup() {
   digitalWrite(PINO_LUZ_AZUL, LOW);
   digitalWrite(PINO_LUZ_VERMELHA, LOW);
   digitalWrite(PINO_REGADOR, LOW);
-  digitalWrite(PINO_CARREGADOR, LOW);
   ligarRegador = false;
 
   //pisca as luzes rapidamente pra dizer que o sistema ligou
@@ -78,20 +75,10 @@ void setup() {
 
 void loop() {
   if (ligarRegador)
-  {    
-    Serial.println("Desligando carregador.");
-    digitalWrite(PINO_CARREGADOR, HIGH);
-    delay(500); //espera o relay magnetizar e desligar o carregador
-    
+  {        
     Serial.println("Ligando regador.");
     efetuaIrrigacao(TEMPO_LIGADO_MINUTOS * 60);
     delay(500);//espera a valvula desmagnetizar
-
-    
-    Serial.println("Ligando carregador.");
-    digitalWrite(PINO_CARREGADOR, LOW);
-    delay(500); //espera o relay desmagnetizar e ligar o carregador
-    ligarRegador = false;
     
     entraEmSonoProfundo();
   }
