@@ -1,5 +1,5 @@
 //tempo que a irrigação ficará ligada quando apertar o botao (em minutos)
-#define TEMPO_LIGADO_MINUTOS 20
+#define TEMPO_LIGADO_MINUTOS 10
 
 #define PINO_BOTAO_LIGA 2
 #define PINO_LUZ_AZUL 4
@@ -58,7 +58,7 @@ void setup() {
   ligarRegador = false;
 
   //pisca as luzes rapidamente pra dizer que o sistema ligou
-  for (int i = 0; i < 50; i++)
+  for (int i = 0; i < 20; i++)
   {
     delay(100);
     atualizaStatusLuzes(1);
@@ -139,31 +139,14 @@ void efetuaIrrigacao(int32_t segundos)
   //efetua irrigadao por x segundos
   while (segundos > 0)
   {
+	ligaValvulaIrrigacao();
     segundos--;
 
-    //liga o regador por x segundos e desliga por y
-    //assim o fluxo de agua alterna entre perto e longe
-    for (int i = 0; i < 10; i++)
-    {
-      ligaValvulaIrrigacao();
-      atualizaStatusLuzes(0);
-      delay(500);
-      atualizaStatusLuzes(1);
-      delay(500);
-
-      segundos--;
-    }
-
-    for (int i = 0; i < 10; i++)
-    {
-      desligaValvulaIrrigacao();
-      atualizaStatusLuzes(0);
-      delay(500);
-      atualizaStatusLuzes(1);
-      delay(500);
-
-      segundos--;
-    }
+	atualizaStatusLuzes(0);
+	delay(500);
+	atualizaStatusLuzes(1);
+	delay(500);
+    
   }
 
   //termina desligado as luzes
