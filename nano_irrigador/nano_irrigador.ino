@@ -75,11 +75,12 @@ void setup() {
 
 void loop() {
   if (ligarRegador)
-  {        
+  {
     Serial.println("Ligando regador.");
     efetuaIrrigacao(TEMPO_LIGADO_MINUTOS * 60);
+    ligarRegador = false;
     delay(500);//espera a valvula desmagnetizar
-    
+
     entraEmSonoProfundo();
   }
 }
@@ -89,10 +90,10 @@ void entraEmSonoProfundo()
   Serial.println("Entrando em deep sleep");
 
   delay(1000);
-    //bota o sistema em sleep até que uma interrupt no pin o acorde
-    SMCR |= (1 << 2); //power down mode
-    SMCR |= 1; //enable sleep
-    __asm__ __volatile__("sleep");  
+  //bota o sistema em sleep até que uma interrupt no pin o acorde
+  SMCR |= (1 << 2); //power down mode
+  SMCR |= 1; //enable sleep
+  __asm__ __volatile__("sleep");
 }
 
 void digitalInterrupt()
@@ -137,17 +138,19 @@ void atualizaStatusLuzes(uint16_t estadoLuzes)
 void efetuaIrrigacao(int32_t segundos)
 {
   //efetua irrigadao por x segundos
+  ligaValvulaIrrigacao();
   while (segundos > 0)
   {
-	ligaValvulaIrrigacao();
     segundos--;
 
-	atualizaStatusLuzes(0);
-	delay(500);
-	atualizaStatusLuzes(1);
-	delay(500);
-    
+    atualizaStatusLuzes(0);
+    delay(500);
+    atualizaStatusLuzes(1);
+    delay(500);
+
   }
+
+  desligaValvulaIrrigacao();
 
   //termina desligado as luzes
   atualizaStatusLuzes(-1);
