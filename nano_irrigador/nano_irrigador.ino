@@ -18,6 +18,9 @@ void entraEmSonoProfundo();
 
 void setup() {
 
+  Serial.begin(9600);
+  Serial.println("Iniciando sistema...");
+
   //********************************************************************************************************
   //técnicas para diminuição de consumo, técnicas do video https://www.youtube.com/watch?v=urLSDi7SD8M
   //passa todos os outros pinos para OUTPUT
@@ -46,10 +49,6 @@ void setup() {
   //define a interrupção pra quando o pino vai pra LOW (falling edge)
   pinMode(PINO_BOTAO_LIGA, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PINO_BOTAO_LIGA), digitalInterrupt, FALLING);
-
-
-  Serial.begin(9600);
-  Serial.println("Iniciando sistema...");
 
   //default values
   digitalWrite(PINO_LUZ_AZUL, LOW);
@@ -91,8 +90,8 @@ void entraEmSonoProfundo()
 
   delay(1000);
   //bota o sistema em sleep até que uma interrupt no pin o acorde
-  SMCR |= (1 << 2); //power down mode
-  SMCR |= 1; //enable sleep
+  SMCR |= (1 << SM1); //power down mode
+  SMCR |= SE; //enable sleep
   __asm__ __volatile__("sleep");
 }
 
