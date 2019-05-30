@@ -8,7 +8,6 @@
 
 volatile bool ligarRegador = false;
 
-
 void ligaValvulaIrrigacao();
 void desligaValvulaIrrigacao();
 void atualizaStatusLuzes(uint16_t estadoLuzes);
@@ -18,8 +17,10 @@ void entraEmSonoProfundo();
 
 void setup() {
 
+#ifdef MSGS_SERIAL
   Serial.begin(9600);
   Serial.println("Iniciando sistema...");
+#endif
 
   //********************************************************************************************************
   //técnicas para diminuição de consumo, técnicas do video https://www.youtube.com/watch?v=urLSDi7SD8M
@@ -67,7 +68,9 @@ void setup() {
 
   atualizaStatusLuzes(-1);
 
+#ifdef MSGS_SERIAL
   Serial.println("Sistema iniciado");
+#endif
 
   entraEmSonoProfundo();
 }
@@ -75,7 +78,9 @@ void setup() {
 void loop() {
   if (ligarRegador)
   {
+#ifdef MSGS_SERIAL
     Serial.println("Ligando regador.");
+#endif
     efetuaIrrigacao(TEMPO_LIGADO_MINUTOS * 60);
     ligarRegador = false;
     delay(500);//espera a valvula desmagnetizar
@@ -86,9 +91,10 @@ void loop() {
 
 void entraEmSonoProfundo()
 {
+#ifdef MSGS_SERIAL  
   Serial.println("Entrando em deep sleep");
-
-  delay(1000);
+#endif
+  delay(500);
   //bota o sistema em sleep até que uma interrupt no pin o acorde
   SMCR |= (1 << SM1); //power down mode
   SMCR |= SE; //enable sleep
