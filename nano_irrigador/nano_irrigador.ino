@@ -8,9 +8,16 @@
 
 volatile bool ligarRegador = false;
 
+enum StatusLuzes
+{
+  AZUL,
+  VERMELHA,
+  NENHUMA
+};
+
 void ligaValvulaIrrigacao();
 void desligaValvulaIrrigacao();
-void atualizaStatusLuzes(uint16_t estadoLuzes);
+void atualizaStatusLuzes(StatusLuzes s);
 void efetuaIrrigacao(int32_t segundos);
 void digitalInterrupt();
 void entraEmSonoProfundo();
@@ -49,24 +56,25 @@ void setup() {
 
   //define a interrupção pra quando o pino vai pra LOW (falling edge)
   pinMode(PINO_BOTAO_LIGA, INPUT_PULLUP);
+  ligarRegador = false;
+  delay(1);
   attachInterrupt(digitalPinToInterrupt(PINO_BOTAO_LIGA), digitalInterrupt, FALLING);
 
   //default values
   digitalWrite(PINO_LUZ_AZUL, LOW);
   digitalWrite(PINO_LUZ_VERMELHA, LOW);
   digitalWrite(PINO_REGADOR, LOW);
-  ligarRegador = false;
 
   //pisca as luzes rapidamente pra dizer que o sistema ligou
   for (int i = 0; i < 20; i++)
   {
     delay(100);
-    atualizaStatusLuzes(1);
+    atualizaStatusLuzes(StatusLuzes::AZUL);
     delay(100);
-    atualizaStatusLuzes(0);
+    atualizaStatusLuzes(StatusLuzes::VERMELHA);
   }
 
-  atualizaStatusLuzes(-1);
+  atualizaStatusLuzes(StatusLuzes::NENHUMA);
 
 #ifdef MSGS_SERIAL
   Serial.println("Sistema iniciado");
@@ -91,7 +99,7 @@ void loop() {
 
 void entraEmSonoProfundo()
 {
-#ifdef MSGS_SERIAL  
+#ifdef MSGS_SERIAL
   Serial.println("Entrando em deep sleep");
 #endif
   delay(500);
@@ -116,27 +124,22 @@ void desligaValvulaIrrigacao()
   digitalWrite(PINO_REGADOR, LOW);
 }
 
-void atualizaStatusLuzes(uint16_t estadoLuzes)
+void atualizaStatusLuzes(StatusLuzes s)
 {
-  //estadoLuzes:
-  //-1 = luzes desligadas
-  //0 = luz azul ligada
-  //1 = luz vermelha ligada
-
-  if (estadoLuzes == -1)
+  switch (s)
   {
-    digitalWrite(PINO_LUZ_AZUL, LOW);
-    digitalWrite(PINO_LUZ_VERMELHA, LOW);
-  }
-  else if (estadoLuzes == 0)
-  {
-    digitalWrite(PINO_LUZ_AZUL, HIGH);
-    digitalWrite(PINO_LUZ_VERMELHA, LOW);
-  }
-  else if (estadoLuzes == 1)
-  {
-    digitalWrite(PINO_LUZ_AZUL, LOW);
-    digitalWrite(PINO_LUZ_VERMELHA, HIGH);
+    case AZUL:
+      digitalWrite(PINO_LUZ_AZUL, HIGH);
+      digitalWrite(PINO_LUZ_VERMELHA, LOW);
+      break;
+    case VERMELHA:
+      digitalWrite(PINO_LUZ_AZUL, LOW);
+      digitalWrite(PINO_LUZ_VERMELHA, HIGH);
+      break;
+    case NENHUMA:
+      digitalWrite(PINO_LUZ_AZUL, LOW);
+      digitalWrite(PINO_LUZ_VERMELHA, LOW);
+      break;
   }
 }
 
@@ -148,16 +151,16 @@ void efetuaIrrigacao(int32_t segundos)
   {
     segundos--;
 
-    atualizaStatusLuzes(0);
+    atualizaStatusLuzes(StatusLuzes::AZUL);
     delay(500);
-    atualizaStatusLuzes(1);
+    atualizaStatusLuzes(StatusLuzes::VERMELHA);
     delay(500);
 
   }
 
   desligaValvulaIrrigacao();
 
-  //termina desligado as luzes
-  atualizaStatusLuzes(-1);
+  //termina desligando as luzes
+  atualizaStatusLuzes(StatusLuzes::NENHUMA);
 
 }
